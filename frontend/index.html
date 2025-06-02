@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Supply Chain Management DApp</title>    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-network-wired me-2"></i>
+                Supply Chain DApp
+            </a>
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item">
+                    <span class="navbar-text" id="connectionStatus">
+                        <i class="fas fa-circle text-danger me-1"></i>
+                        Chưa kết nối
+                    </span>
+                </div>
+                <div class="nav-item ms-3">
+                    <span class="navbar-text" id="accountAddress">Địa chỉ: Chưa kết nối</span>
+                </div>
+                <div class="nav-item ms-3">
+                    <span class="navbar-text" id="networkStatus">
+                        <i class="fas fa-globe text-warning me-1"></i>
+                        Mạng: Chưa xác định
+                    </span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Connection Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-plug me-2"></i>
+                            Kết nối Ví
+                        </h5>
+                    </div>
+                    <div class="card-body">                        <button id="connectBtn" class="btn btn-success">
+                            <i class="fab fa-ethereum me-2"></i>
+                            Kết nối MetaMask
+                        </button>
+                        <button id="disconnectBtn" class="btn btn-danger ms-2" style="display: none;">
+                            <i class="fas fa-sign-out-alt me-2"></i>
+                            Ngắt kết nối
+                        </button>                        <button id="switchNetworkBtn" class="btn btn-warning ms-2" style="display: none;">
+                            <i class="fas fa-network-wired me-2"></i>
+                            Chuyển mạng
+                        </button>
+                        <button id="testContractsBtn" class="btn btn-info ms-2" style="display: none;">
+                            <i class="fas fa-flask me-2"></i>
+                            Test Contracts
+                        </button>
+                        <div class="mt-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="networkSelect" class="form-label">Chọn mạng:</label>
+                                    <select id="networkSelect" class="form-select">
+                                        <option value="ganache">Ganache Local (5777)</option>
+                                        <option value="sepolia">Ethereum Sepolia Testnet</option>
+                                        <option value="mumbai">Polygon Mumbai Testnet</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Trạng thái contract:</label>
+                                    <div id="contractStatus" class="alert alert-info mb-0">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Kiểm tra địa chỉ contract...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Mạng hiện tại: <span id="currentNetwork">Chưa kết nối</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Tabs -->
+        <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="role-tab" data-bs-toggle="tab" data-bs-target="#role" type="button">
+                    <i class="fas fa-users-cog me-2"></i>Quản lý Vai trò
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="items-tab" data-bs-toggle="tab" data-bs-target="#items" type="button">
+                    <i class="fas fa-boxes me-2"></i>Quản lý Hàng hóa
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="suppliers-tab" data-bs-toggle="tab" data-bs-target="#suppliers" type="button">
+                    <i class="fas fa-truck me-2"></i>Quản lý Nhà cung cấp
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="warehouse-tab" data-bs-toggle="tab" data-bs-target="#warehouse" type="button">
+                    <i class="fas fa-warehouse me-2"></i>Quản lý Kho
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="store-tab" data-bs-toggle="tab" data-bs-target="#store" type="button">
+                    <i class="fas fa-store me-2"></i>Quản lý Cửa hàng
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button">
+                    <i class="fas fa-shopping-cart me-2"></i>Quản lý Đơn hàng
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="treasury-tab" data-bs-toggle="tab" data-bs-target="#treasury" type="button">
+                    <i class="fas fa-coins me-2"></i>Quản lý Tài chính
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-3" id="mainTabContent">
+            <!-- Role Management Tab -->
+            <div class="tab-pane fade show active" id="role" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Kiểm tra Vai trò</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ cần kiểm tra:</label>
+                                    <input type="text" class="form-control" id="checkRoleAddress" placeholder="0x...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Vai trò:</label>
+                                    <select class="form-select" id="roleSelect">
+                                        <option value="WAREHOUSE_MANAGER_ROLE">Quản lý Kho</option>
+                                        <option value="SUPPLIER_ROLE">Nhà cung cấp</option>
+                                        <option value="STORE_MANAGER_ROLE">Quản lý Cửa hàng</option>
+                                        <option value="BOARD_ROLE">Ban Giám đốc</option>
+                                        <option value="FINANCE_DIRECTOR_ROLE">Giám đốc Tài chính</option>
+                                        <option value="WAREHOUSE_DIRECTOR_ROLE">Giám đốc Kho</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary" onclick="checkRole()">
+                                    <i class="fas fa-search me-2"></i>Kiểm tra
+                                </button>
+                                <div id="roleResult" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Cấp Vai trò (Chỉ Admin)</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ nhận vai trò:</label>
+                                    <input type="text" class="form-control" id="grantRoleAddress" placeholder="0x...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Vai trò cấp:</label>
+                                    <select class="form-select" id="grantRoleSelect">
+                                        <option value="WAREHOUSE_MANAGER_ROLE">Quản lý Kho</option>
+                                        <option value="SUPPLIER_ROLE">Nhà cung cấp</option>
+                                        <option value="STORE_MANAGER_ROLE">Quản lý Cửa hàng</option>
+                                        <option value="BOARD_ROLE">Ban Giám đốc</option>
+                                        <option value="FINANCE_DIRECTOR_ROLE">Giám đốc Tài chính</option>
+                                        <option value="WAREHOUSE_DIRECTOR_ROLE">Giám đốc Kho</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-success" onclick="grantRole()">
+                                    <i class="fas fa-user-plus me-2"></i>Cấp Vai trò
+                                </button>
+                                <div id="grantRoleResult" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items Management Tab -->
+            <div class="tab-pane fade" id="items" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Thông tin Kho/Cửa hàng</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ:</label>
+                                    <input type="text" class="form-control" id="locationAddress" placeholder="0x...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Loại:</label>
+                                    <select class="form-select" id="locationType">
+                                        <option value="warehouse">Kho</option>
+                                        <option value="store">Cửa hàng</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary" onclick="getLocationInfo()">
+                                    <i class="fas fa-info-circle me-2"></i>Xem Thông tin
+                                </button>
+                                <div id="locationResult" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Giá Bán Lẻ</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Mã sản phẩm:</label>
+                                    <input type="text" class="form-control" id="itemId" placeholder="ITEM001">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ cửa hàng:</label>
+                                    <input type="text" class="form-control" id="storeAddress" placeholder="0x...">
+                                </div>
+                                <button class="btn btn-primary" onclick="getItemPrice()">
+                                    <i class="fas fa-dollar-sign me-2"></i>Xem Giá
+                                </button>
+                                <div id="priceResult" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suppliers Management Tab -->
+            <div class="tab-pane fade" id="suppliers" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Thông tin Nhà cung cấp</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ nhà cung cấp:</label>
+                                    <input type="text" class="form-control" id="supplierAddress" placeholder="0x...">
+                                </div>
+                                <button class="btn btn-primary" onclick="getSupplierInfo()">
+                                    <i class="fas fa-info-circle me-2"></i>Xem Thông tin
+                                </button>
+                                <div id="supplierResult" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Chi tiết Sản phẩm của Nhà cung cấp</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ nhà cung cấp:</label>
+                                    <input type="text" class="form-control" id="supplierItemAddress" placeholder="0x...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Mã sản phẩm:</label>
+                                    <input type="text" class="form-control" id="supplierItemId" placeholder="ITEM001">
+                                </div>
+                                <button class="btn btn-primary" onclick="getSupplierItemDetails()">
+                                    <i class="fas fa-box me-2"></i>Xem Chi tiết
+                                </button>
+                                <div id="supplierItemResult" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warehouse Management Tab -->
+            <div class="tab-pane fade" id="warehouse" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Yêu cầu Chuyển hàng đến Cửa hàng</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ cửa hàng:</label>
+                                    <input type="text" class="form-control" id="transferStoreAddress" placeholder="0x...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ kho:</label>
+                                    <input type="text" class="form-control" id="transferWarehouseAddress" placeholder="0x...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Mã sản phẩm:</label>
+                                    <input type="text" class="form-control" id="transferItemId" placeholder="ITEM001">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Số lượng:</label>
+                                    <input type="number" class="form-control" id="transferQuantity" placeholder="100">
+                                </div>
+                                <button class="btn btn-primary" onclick="requestStockTransfer()">
+                                    <i class="fas fa-truck me-2"></i>Yêu cầu Chuyển hàng
+                                </button>
+                                <div id="transferResult" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Ghi nhận Hàng từ Nhà cung cấp</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ kho:</label>
+                                    <input type="text" class="form-control" id="stockInWarehouseAddress" placeholder="0x...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Mã sản phẩm:</label>
+                                    <input type="text" class="form-control" id="stockInItemId" placeholder="ITEM001">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Số lượng:</label>
+                                    <input type="number" class="form-control" id="stockInQuantity" placeholder="100">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">ID đơn hàng NCC:</label>
+                                    <input type="number" class="form-control" id="stockInOrderId" placeholder="1">
+                                </div>
+                                <button class="btn btn-success" onclick="recordStockInFromSupplier()">
+                                    <i class="fas fa-plus me-2"></i>Ghi nhận Nhập kho
+                                </button>
+                                <div id="stockInResult" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Store Management Tab -->
+            <div class="tab-pane fade" id="store" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Kiểm tra Tồn kho Cửa hàng</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ cửa hàng:</label>
+                                    <input type="text" class="form-control" id="checkStockStoreAddress" placeholder="0x...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Mã sản phẩm:</label>
+                                    <input type="text" class="form-control" id="checkStockItemId" placeholder="ITEM001">
+                                </div>
+                                <button class="btn btn-primary" onclick="getStoreStockLevel()">
+                                    <i class="fas fa-clipboard-list me-2"></i>Kiểm tra Tồn kho
+                                </button>
+                                <div id="stockLevelResult" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Xác nhận Nhận hàng từ Kho</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ cửa hàng:</label>
+                                    <input type="text" class="form-control" id="confirmStoreAddress" placeholder="0x...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Mã sản phẩm:</label>
+                                    <input type="text" class="form-control" id="confirmItemId" placeholder="ITEM001">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Số lượng:</label>
+                                    <input type="number" class="form-control" id="confirmQuantity" placeholder="100">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ kho gửi:</label>
+                                    <input type="text" class="form-control" id="confirmFromWarehouse" placeholder="0x...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">ID chuyển nội bộ:</label>
+                                    <input type="number" class="form-control" id="confirmTransferId" placeholder="1">
+                                </div>
+                                <button class="btn btn-success" onclick="confirmStockReceived()">
+                                    <i class="fas fa-check me-2"></i>Xác nhận Nhận hàng
+                                </button>
+                                <div id="confirmResult" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Management Tab -->
+            <div class="tab-pane fade" id="orders" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Trừ Hàng cho Bán lẻ</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ cửa hàng:</label>
+                                    <input type="text" class="form-control" id="saleStoreAddress" placeholder="0x...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Mã sản phẩm:</label>
+                                    <input type="text" class="form-control" id="saleItemId" placeholder="ITEM001">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Số lượng:</label>
+                                    <input type="number" class="form-control" id="saleQuantity" placeholder="10">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">ID đơn hàng khách:</label>
+                                    <input type="number" class="form-control" id="customerOrderId" placeholder="1">
+                                </div>
+                                <button class="btn btn-warning" onclick="deductStockForSale()">
+                                    <i class="fas fa-minus me-2"></i>Trừ Hàng Bán
+                                </button>
+                                <div id="saleResult" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Ghi nhận Hàng Trả lại</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ kho nhận trả:</label>
+                                    <input type="text" class="form-control" id="returnWarehouseAddress" placeholder="0x...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Mã sản phẩm:</label>
+                                    <input type="text" class="form-control" id="returnItemId" placeholder="ITEM001">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Số lượng:</label>
+                                    <input type="number" class="form-control" id="returnQuantity" placeholder="5">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">ID đơn hàng khách:</label>
+                                    <input type="number" class="form-control" id="returnCustomerOrderId" placeholder="1">
+                                </div>
+                                <button class="btn btn-info" onclick="recordReturnedStock()">
+                                    <i class="fas fa-undo me-2"></i>Ghi nhận Trả hàng
+                                </button>
+                                <div id="returnResult" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Treasury Management Tab -->
+            <div class="tab-pane fade" id="treasury" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Yêu cầu Ký quỹ</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ kho:</label>
+                                    <input type="text" class="form-control" id="escrowWarehouseAddress" placeholder="0x...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ nhà cung cấp:</label>
+                                    <input type="text" class="form-control" id="escrowSupplierAddress" placeholder="0x...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">ID đơn hàng NCC:</label>
+                                    <input type="text" class="form-control" id="escrowOrderId" placeholder="ORDER001">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Số tiền (wei):</label>
+                                    <input type="number" class="form-control" id="escrowAmount" placeholder="1000000000000000000">
+                                </div>
+                                <button class="btn btn-primary" onclick="requestEscrow()">
+                                    <i class="fas fa-lock me-2"></i>Yêu cầu Ký quỹ
+                                </button>
+                                <div id="escrowResult" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Giải phóng Ký quỹ</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ nhà cung cấp:</label>
+                                    <input type="text" class="form-control" id="releaseSupplierAddress" placeholder="0x...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">ID đơn hàng NCC:</label>
+                                    <input type="text" class="form-control" id="releaseOrderId" placeholder="ORDER001">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Số tiền (wei):</label>
+                                    <input type="number" class="form-control" id="releaseAmount" placeholder="1000000000000000000">
+                                </div>
+                                <button class="btn btn-success" onclick="releaseEscrow()">
+                                    <i class="fas fa-unlock me-2"></i>Giải phóng Ký quỹ
+                                </button>
+                                <div id="releaseResult" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Đang xử lý...</span>
+                    </div>
+                    <p class="mt-3 mb-0">Đang xử lý giao dịch...</p>
+                </div>
+            </div>
+        </div>
+    </div>    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
+    <script src="config.js"></script>
+    <script src="contracts.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

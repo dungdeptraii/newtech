@@ -1,0 +1,20 @@
+{
+  "name": "supply-chain-dapp",
+  "version": "1.0.0",
+  "description": "Supply Chain Management DApp",
+  "main": "index.js",
+  "scripts": {
+    "dev": "http-server frontend -p 3000 -o",
+    "compile": "truffle compile",
+    "migrate": "truffle migrate",
+    "extract-addresses": "node scripts/extract-addresses.js",
+    "setup-frontend": "npm run extract-addresses && npm run dev"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.1.0",
+    "web3": "^1.8.0"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
